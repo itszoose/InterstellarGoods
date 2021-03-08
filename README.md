@@ -1,6 +1,128 @@
-# Foobar
+# ReadME
+ Here is a summary of what to expect from the code above in details. let me know if you've got any questions.
 
-This is the final project, and here are my two cents on how to deal with the end points and things to expect
+
+
+
+## Shopify API
+**POST** | ex: ```https://n5871i3icd.execute-api.ap-southeast-1.amazonaws.com/prod/getSaveOrders```
+
+Above triggers the functions:  **shopify.js/handler**: It's a function to get and save to Backendless all the order from the Shopify starting from the last order in the Backendless table `Shop_Orders`
+
+PLease note: On first launch and if there are a lot of orders, too much for the function to fetch and save them all under 29 second, the function will respond with a message stating that the request timed out, this limit is put in place by API gateway, and there is no way to change it, however, the actual lambda function will continue on the background to fetch orders from Shopify and try to save them all not within 29-seconds limit but within 15 minutes, so plenty of time, but just note that during that first launch you may get that message. but afterwards, you will receive back the orders that have been fetched from Shopify and saved to the DB, hope that makes sense.
+
+**The request body should be formated like this**
+```
+{
+    "shopifyApiToken": "The Shopify Api Token here",
+    "shopifyApiKey": "The Shopify Api Key here",
+    "shopifyShopName": "The shopname or also known as the .myshopify without / at the end and without wwww. ex: myshop.myshopify.com"
+}
+```
+
+
+#
+## EasyShip API
+**ANY*** | ex: ```https://n5871i3icd.execute-api.ap-southeast-1.amazonaws.com/prod/easyShip```
+
+Above triggers the functions:  **easyShip.js/handler**: 
+
+Depending on the request method, this end point's job differs, here is a table explaining how: 
+
+
+| Method   | description   | return |
+| ---------|:--------------------------:| -----:|
+| POST     | create a single shipment | the newly created shipment  |
+| GET     | retrieves a list of shipments | list of shipments  |
+| PATCH     | update a single shipment | the updated shipment  |
+| DELETE     | deletes a shipment | a message confirming the delete  |
+
+
+Above gives an idea on what to expect, but each Method has its own requirements, below explains just that.
+
+
+- **POST**: the post method expect a JSON formatted like below
+```
+{
+    "origin_postal_code": "WC2N",
+    "destination_country_alpha2": "US",
+    "destination_postal_code": "10030",
+    "destination_city": "New York",
+    "destination_state": "NY",
+    "destination_name": "Aloha Chen",
+    "destination_address_line_1": "300 Park Avenue",
+    "destination_address_line_2": null,
+    "destination_phone_number": "+1 234-567-890",
+    "destination_email_address": "api-support@easyship.com",
+    "platform_order_number": "#1234",
+    "items": [
+        {
+            "description": "Silk dress",
+            "sku": "test",
+            "actual_weight": 1.2,
+            "height": 10,
+            "width": 15,
+            "length": 20,
+            "category": "fashion",
+            "declared_currency": "SGD",
+            "declared_customs_value": 100
+        }
+    ]
+}
+
+```
+#
+- **POST**: the post method expects a JSON formatted like below
+```
+{
+    "origin_postal_code": "WC2N",
+    "destination_country_alpha2": "US",
+    "destination_postal_code": "10030",
+    "destination_city": "New York",
+    "destination_state": "NY",
+    "destination_name": "Aloha Chen",
+    "destination_address_line_1": "300 Park Avenue",
+    "destination_address_line_2": null,
+    "destination_phone_number": "+1 234-567-890",
+    "destination_email_address": "api-support@easyship.com",
+    "platform_order_number": "#1234",
+    "items": [
+        {
+            "description": "Silk dress",
+            "sku": "test",
+            "actual_weight": 1.2,
+            "height": 10,
+            "width": 15,
+            "length": 20,
+            "category": "fashion",
+            "declared_currency": "SGD",
+            "declared_customs_value": 100
+        }
+    ]
+}
+```
+
+the `Items` is an array that can hold a single object or multiple objects.
+
+# 
+- **GET**: the GET method doesn't expect anything, it's very humble lol :D 
+```
+Nothing
+```
+
+
+# 
+- **PATCH**: the PATCH method expects a query string `easyship_shipment_id` of the shipment that needs to be updated to be passed with the request URL
+
+EX:`https://ylg7xj2ro7.execute-api.eu-west-1.amazonaws.com/dev/easyShip?easyship_shipment_id=ESAU37202171` 
+
+Notice the `?` followed by `easyship_shipment_id=ESAU37202171`  which is the shipment id to be updated.
+
+
+
+# 
+- **DELETE**: Same requirements as PATCH, but instead of updating it actually removes the shipment as you'd expect.
+
 
 ## Backendless API
 
@@ -133,123 +255,3 @@ Above triggers the functions:  **messageBird.js/handler**
     }
 }
 ```
-#
-## Shopify API
-**POST** | ex: ```https://n5871i3icd.execute-api.ap-southeast-1.amazonaws.com/prod/getSaveOrders```
-
-Above triggers the functions:  **shopify.js/handler**: It's a function to get and save to Backendless all the order from the Shopify starting from the last order in the Backendless table `Shop_Orders`
-
-PLease note: On first launch and if there are a lot of orders, too much for the function to fetch and save them all under 29 second, the function will respond with a message stating that the request timed out, this limit is put in place by API gateway, and there is no way to change it, however, the actual lambda function will continue on the background to fetch orders from Shopify and try to save them all not within 29-seconds limit but within 15 minutes, so plenty of time, but just note that during that first launch you may get that message. but afterwards, you will receive back the orders that have been fetched from Shopify and saved to the DB, hope that makes sense.
-
-**The request body should be formated like this**
-```
-{
-    "shopifyApiToken": "The Shopify Api Token here",
-    "shopifyApiKey": "The Shopify Api Key here",
-    "shopifyShopName": "The shopname or also known as the .myshopify without / at the end and without wwww. ex: myshop.myshopify.com"
-}
-```
-
-
-#
-## EasyShip API
-**ANY*** | ex: ```https://n5871i3icd.execute-api.ap-southeast-1.amazonaws.com/prod/easyShip```
-
-Above triggers the functions:  **easyShip.js/handler**: 
-
-Depending on the request method, this end point's job differs, here is a table explaining how: 
-
-
-| Method   | description   | return |
-| ---------|:--------------------------:| -----:|
-| POST     | create a single shipment | the newly created shipment  |
-| GET     | retrieves a list of shipments | list of shipments  |
-| PATCH     | update a single shipment | the updated shipment  |
-| DELETE     | deletes a shipment | a message confirming the delete  |
-
-
-Above gives an idea on what to expect, but each Method has its own requirements, below explains just that.
-
-
-- **POST**: the post method expect a JSON formatted like below
-```
-{
-    "origin_postal_code": "WC2N",
-    "destination_country_alpha2": "US",
-    "destination_postal_code": "10030",
-    "destination_city": "New York",
-    "destination_state": "NY",
-    "destination_name": "Aloha Chen",
-    "destination_address_line_1": "300 Park Avenue",
-    "destination_address_line_2": null,
-    "destination_phone_number": "+1 234-567-890",
-    "destination_email_address": "api-support@easyship.com",
-    "platform_order_number": "#1234",
-    "items": [
-        {
-            "description": "Silk dress",
-            "sku": "test",
-            "actual_weight": 1.2,
-            "height": 10,
-            "width": 15,
-            "length": 20,
-            "category": "fashion",
-            "declared_currency": "SGD",
-            "declared_customs_value": 100
-        }
-    ]
-}
-
-```
-#
-
-- **POST**: the post method expects a JSON formatted like below
-```
-{
-    "origin_postal_code": "WC2N",
-    "destination_country_alpha2": "US",
-    "destination_postal_code": "10030",
-    "destination_city": "New York",
-    "destination_state": "NY",
-    "destination_name": "Aloha Chen",
-    "destination_address_line_1": "300 Park Avenue",
-    "destination_address_line_2": null,
-    "destination_phone_number": "+1 234-567-890",
-    "destination_email_address": "api-support@easyship.com",
-    "platform_order_number": "#1234",
-    "items": [
-        {
-            "description": "Silk dress",
-            "sku": "test",
-            "actual_weight": 1.2,
-            "height": 10,
-            "width": 15,
-            "length": 20,
-            "category": "fashion",
-            "declared_currency": "SGD",
-            "declared_customs_value": 100
-        }
-    ]
-}
-```
-
-the `Items` is an array that can hold a single object or multiple objects.
-
-# 
-- **GET**: the GET method doesn't expect anything, it's very humble lol :D 
-```
-Nothing
-```
-
-
-# 
-- **PATCH**: the PATCH method expects a query string `easyship_shipment_id` of the shipment that needs to be updated to be passed with the request URL
-
-EX:`https://ylg7xj2ro7.execute-api.eu-west-1.amazonaws.com/dev/easyShip?easyship_shipment_id=ESAU37202171` 
-
-Notice the `?` followed by `easyship_shipment_id=ESAU37202171`  which is the shipment id to be updated.
-
-
-
-# 
-- **DELETE**: Same requirements as PATCH, but instead of updating it actually removes the shipment as you'd expect.
