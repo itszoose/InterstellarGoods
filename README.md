@@ -3,6 +3,10 @@
 
 
 
+### Things to update in the code
+Open the `keys.yml` and replace the values there. 
+
+
 
 ## Shopify API
 **POST** | ex: ```https://n5871i3icd.execute-api.ap-southeast-1.amazonaws.com/prod/getSaveOrders```
